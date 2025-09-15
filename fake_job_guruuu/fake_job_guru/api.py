@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, ValidationError
 from pydantic import field_validator
 from pydantic import ConfigDict
 
-from scam_detector import predict_job
+from .scam_detector import predict_job
 
 
 app = FastAPI(title="Fake Job Scam Detector API", version="1.0.0")
