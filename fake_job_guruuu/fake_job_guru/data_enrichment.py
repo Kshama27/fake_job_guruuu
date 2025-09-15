@@ -1,9 +1,12 @@
 import pandas as pd
 import numpy as np
 import re
+from pathlib import Path
 
 # Load the dataset
-df = pd.read_csv("../fake_job_postings.csv")
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+df = pd.read_csv(DATA_DIR / "fake_job_postings.csv")
 
 
 # ============================
@@ -62,6 +65,6 @@ df["suspicion_score"] = (
 )
 
 # Save enriched dataset
-df.to_csv("enriched_dataset.csv", index=False)
+df.to_csv(DATA_DIR / "enriched_dataset.csv", index=False)
 
-print("✅ Enrichment complete. Saved as enriched_dataset.csv")
+print("✅ Enrichment complete. Saved to data/enriched_dataset.csv")
