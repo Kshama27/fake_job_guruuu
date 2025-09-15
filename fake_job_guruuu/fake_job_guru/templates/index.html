@@ -113,6 +113,19 @@
         const alertContainer = document.getElementById('alert-container');
         const resultsContainer = document.getElementById('results-container');
 
+        // Helpers
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
         // Load saved form data
         function loadFormData() {
             const saved = localStorage.getItem('fakeJobGuruForm');
@@ -207,6 +220,16 @@
             const keywords = signals.keywords_triggered || [];
             const flags = [];
 
+            // Get current description value
+            const rawDescription = document.getElementById('description').value || '';
+
+            // Build highlighted description
+            let highlightedDesc = escapeHtml(rawDescription);
+            keywords.forEach(k => {
+                const re = new RegExp('\\b' + escapeRegExp(k) + '\\b', 'gi');
+                highlightedDesc = highlightedDesc.replace(re, `<span class="bg-red-100 text-red-800 font-semibold px-1 rounded">${k}</span>`);
+            });
+
             if (signals.missing_website_flag) flags.push({ name: 'Missing Website', desc: 'No website mentioned in company profile' });
             if (signals.suspicious_email_flag) flags.push({ name: 'Suspicious Contact', desc: 'Uses Gmail, Yahoo, or messaging apps for contact' });
             if (signals.short_profile_flag) flags.push({ name: 'Short Profile', desc: 'Company profile is very brief or empty' });
@@ -237,6 +260,14 @@
 
                     <!-- Signals Section -->
                     <div class="space-y-4">
+                        <!-- Highlighted Description -->
+                        ${rawDescription ? `
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-2">Job description (highlighted):</h4>
+                            <div class="text-sm leading-6 bg-gray-50 border border-gray-200 rounded p-3">${highlightedDesc}</div>
+                        </div>
+                        ` : ''}
+
                         <button onclick="toggleSignals()" class="flex items-center justify-between w-full text-left font-medium text-gray-900 hover:text-blue-600 focus:outline-none">
                             <span>Signals & Analysis</span>
                             <svg id="signals-arrow" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
