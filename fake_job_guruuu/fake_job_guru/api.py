@@ -6,10 +6,18 @@ import platform
 import os
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel, Field, ValidationError
 from pydantic import field_validator
 from pydantic import ConfigDict
+
+import warnings
+try:
+    # Suppress scikit-learn minor version mismatch warnings from unpickling
+    from sklearn.exceptions import InconsistentVersionWarning  # type: ignore
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+except Exception:
+    pass
 
 from .scam_detector import predict_job
 
@@ -37,9 +45,13 @@ logger.setLevel(logging.INFO)
 # ===============================
 ENRICHED_DF = None
 _ROOT_DIR = Path(__file__).resolve().parent.parent
-ENRICHED_PATH = _ROOT_DIR / "enriched_dataset.csv"
+# Prefer new data/ location first
+ENRICHED_PATH = _ROOT_DIR / "data" / "enriched_dataset.csv"
 if not ENRICHED_PATH.exists():
-    # Fallback: same directory as API file
+    # Legacy at project root
+    ENRICHED_PATH = _ROOT_DIR / "enriched_dataset.csv"
+if not ENRICHED_PATH.exists():
+    # Fallback next to API file
     ENRICHED_PATH = Path(__file__).resolve().parent / "enriched_dataset.csv"
 try:
     import pandas as _pd  # lazy dependency only for loading
@@ -119,6 +131,12 @@ def serve_ui():
         </body>
         </html>
         """)
+
+
+@app.get("/favicon.ico")
+def favicon() -> Response:
+    # Avoid 404 noise for browsers requesting favicon
+    return Response(status_code=204)
 
 
 @app.get("/health")
