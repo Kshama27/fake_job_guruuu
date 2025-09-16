@@ -6,10 +6,18 @@ import platform
 import os
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel, Field, ValidationError
 from pydantic import field_validator
 from pydantic import ConfigDict
+
+import warnings
+try:
+    # Suppress scikit-learn minor version mismatch warnings from unpickling
+    from sklearn.exceptions import InconsistentVersionWarning  # type: ignore
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+except Exception:
+    pass
 
 from .scam_detector import predict_job
 
@@ -37,13 +45,18 @@ logger.setLevel(logging.INFO)
 # ===============================
 ENRICHED_DF = None
 _ROOT_DIR = Path(__file__).resolve().parent.parent
-ENRICHED_PATH = _ROOT_DIR / "enriched_dataset.csv"
+# Prefer new data/ location first
+ENRICHED_PATH = _ROOT_DIR / "data" / "enriched_dataset.csv"
 if not ENRICHED_PATH.exists():
-    # Fallback: same directory as API file
+    # Legacy at project root
+    ENRICHED_PATH = _ROOT_DIR / "enriched_dataset.csv"
+if not ENRICHED_PATH.exists():
+    # Fallback next to API file
     ENRICHED_PATH = Path(__file__).resolve().parent / "enriched_dataset.csv"
 try:
-    import pandas as _pd  # lazy dependency only for loading
     if ENRICHED_PATH.exists():
+        import importlib
+        _pd = importlib.import_module("pandas")
         ENRICHED_DF = _pd.read_csv(ENRICHED_PATH)
 except Exception:
     ENRICHED_DF = None
@@ -121,6 +134,12 @@ def serve_ui():
         """)
 
 
+@app.get("/favicon.ico")
+def favicon() -> Response:
+    # Avoid 404 noise for browsers requesting favicon
+    return Response(status_code=204)
+
+
 @app.get("/health")
 def health() -> Dict[str, Any]:
     info: Dict[str, Any] = {
@@ -187,6 +206,39 @@ def analyze_job(payload: AnalyzeJobRequest, request: Request):
         logger.exception("unhandled error")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
+# Backwards-compatible alias expected by the new frontend
+@app.post("/analyze", response_model=AnalyzeJobResponse)
+def analyze(payload: AnalyzeJobRequest):
+    start = time.time()
+    try:
+        result = predict_job(
+            title=payload.title,
+            description=payload.description,
+            requirements=payload.requirements,
+            company_profile=payload.company_profile,
+            followers=payload.company_followers,
+            employees=payload.company_employees,
+            engagement=payload.engagement_score,
+            company_strength=payload.company_strength,
+            missing_website_flag=payload.missing_website_flag,
+            suspicious_email_flag=payload.suspicious_email_flag,
+            short_profile_flag=payload.short_profile_flag,
+            suspicion_score=payload.suspicion_score,
+        )
+        logger.info("analyze (alias) response: %s", {
+            "prediction": result.get("prediction"),
+            "risk_score": result.get("risk_score"),
+            "latency_ms": int((time.time() - start) * 1000),
+        })
+        return AnalyzeJobResponse(**result)
+    except ValidationError as ve:
+        raise HTTPException(status_code=422, detail=ve.errors())
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("unhandled error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # Local dev entrypoint: uvicorn fake_job_guru.api:app --reload
 
