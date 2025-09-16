@@ -104,14 +104,93 @@
       });
       if(!res.ok) throw new Error('Server responded '+res.status);
       const data = await res.json();
-      // store and show results page content inline
-      sessionStorage.setItem('fakeJobLastAnalysis', JSON.stringify({payload, data}));
-      window.location.href = '/results.html';
+      // render inline results on the same page (no redirect)
+      renderResultsInline(payload, data);
     } catch (err) {
       el('status').textContent = 'Error: ' + (err.message || 'Network error');
       console.error(err);
     }
   });
+
+  function renderResultsInline(payload, data){
+    const containerId = 'inline-results';
+    let cont = document.getElementById(containerId);
+    if(!cont){
+      cont = document.createElement('div');
+      cont.id = containerId;
+      cont.className = 'mt-6';
+      document.querySelector('main')?.appendChild(cont);
+    }
+
+    // compute banding
+    const riskScore = typeof data.risk_score === 'number' ? (data.risk_score * 100).toFixed(1) : '—';
+    const scamProb = data.probabilities?.scam != null ? (data.probabilities.scam * 100).toFixed(1) : '—';
+    const legitProb = data.probabilities?.legit != null ? (data.probabilities.legit * 100).toFixed(1) : '—';
+    const rsn = Number(riskScore);
+    let band = 'green';
+    if (!Number.isNaN(rsn) && rsn >= 70) band = 'red';
+    else if (!Number.isNaN(rsn) && rsn >= 40) band = 'yellow';
+    const bs = band === 'red' ? {bg:'bg-red-50',bd:'border-red-200',tx:'text-red-800',sub:'text-red-600'} : band === 'yellow' ? {bg:'bg-yellow-50',bd:'border-yellow-200',tx:'text-yellow-900',sub:'text-yellow-700'} : {bg:'bg-green-50',bd:'border-green-200',tx:'text-green-800',sub:'text-green-600'};
+
+    const signals = data.signals || {};
+    const keywords = signals.keywords_triggered || [];
+
+    // highlighted description
+    const raw = (payload?.description || '').toString();
+    let highlighted = raw
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+      .replaceAll('"','&quot;').replaceAll("'",'&#039;');
+    keywords.forEach(k => {
+      const re = new RegExp('\\\b' + k.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\\b', 'gi');
+      highlighted = highlighted.replace(re, `<span class="bg-red-100 text-red-800 font-semibold px-1 rounded">${k}</span>`);
+    });
+
+    cont.innerHTML = `
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
+        <div class="${bs.bg} border ${bs.bd} rounded-xl p-4 sm:p-5 mb-5">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Risk Assessment</div>
+              <h3 class="text-lg font-semibold ${bs.tx} mb-1">${band === 'green' ? 'LEGITIMATE' : band === 'yellow' ? 'SUSPICIOUS' : 'SCAM'}</h3>
+              <div class="text-sm ${bs.sub} flex gap-4">
+                <div>Risk Score: <span class="font-semibold">${riskScore}%</span></div>
+                <div>Scam Prob: <span class="font-semibold">${scamProb}%</span></div>
+                <div>Legit Prob: <span class="font-semibold">${legitProb}%</span></div>
+              </div>
+            </div>
+            <div class="text-3xl">${band === 'red' ? '🚨' : band === 'yellow' ? '⚠️' : '✅'}</div>
+          </div>
+        </div>
+
+        ${raw ? `
+        <div class="mb-4">
+          <h4 class="font-medium text-gray-900 mb-2">Job description (highlighted):</h4>
+          <div class="text-sm leading-6 bg-gray-50 border border-gray-200 rounded p-3">${highlighted}</div>
+        </div>` : ''}
+
+        <div class="space-y-4">
+          ${keywords.length ? `
+          <div>
+            <h4 class="font-medium text-gray-900 mb-2">Triggered Keywords:</h4>
+            <div class="flex flex-wrap gap-2">
+              ${keywords.map(kw => `<span class="px-2.5 py-1 ${band === 'red' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'} text-xs rounded-full">${kw}</span>`).join('')}
+            </div>
+          </div>` : ''}
+
+          <div>
+            <h4 class="font-medium text-gray-900 mb-2">Company Information:</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div class="rounded-lg border border-gray-200 p-3"><div class="text-gray-500 text-xs">Strength</div><div class="mt-0.5 font-semibold ${signals.company_strength === 'weak' ? 'text-red-600' : signals.company_strength === 'medium' ? 'text-yellow-600' : 'text-green-600'}">${signals.company_strength || 'n/a'}</div></div>
+              <div class="rounded-lg border border-gray-200 p-3"><div class="text-gray-500 text-xs">Followers</div><div class="mt-0.5 font-semibold">${signals.followers ?? '—'}</div></div>
+              <div class="rounded-lg border border-gray-200 p-3"><div class="text-gray-500 text-xs">Employees</div><div class="mt-0.5 font-semibold">${signals.employees ?? '—'}</div></div>
+              <div class="rounded-lg border border-gray-200 p-3"><div class="text-gray-500 text-xs">Engagement</div><div class="mt-0.5 font-semibold">${signals.engagement ?? '—'}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    el('status').textContent = '';
+  }
 </script>
 
 </body>
