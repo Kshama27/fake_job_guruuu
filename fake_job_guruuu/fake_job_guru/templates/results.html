@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fake Job Guru — Results</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .card { background: white; border-radius: 14px; box-shadow: 0 10px 30px rgba(2,6,23,0.06); }
+    .badge { font-weight: 700; padding: 8px 12px; border-radius: 999px; display:inline-block; }
+    .muted { color: #6b7280; }
+    .flag { background: #fff1f2; color:#b91c1c; padding:6px 8px; border-radius:8px; font-weight:600; }
+    .secondary-btn { border: 1px solid #e6e9ef; background: white; color: #374151; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 flex items-center justify-center p-6">
+
+  <div class="w-full max-w-4xl">
+    <header class="mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-sky-500 flex items-center justify-center text-white font-bold">FG</div>
+          <div>
+            <h2 class="text-xl font-semibold text-slate-800">Analysis Results</h2>
+            <div class="text-sm muted">Detailed explanation & red flags</div>
+          </div>
+        </div>
+        <div>
+          <button id="backBtn" class="px-4 py-2 rounded-lg secondary-btn">Back to Analyze</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="card p-6">
+      <div id="content">
+        <div id="noData" class="text-center muted py-20">
+          No recent analysis found. Please go back and analyze a job posting first.
+        </div>
+
+        <div id="results" class="hidden">
+          <!-- Risk banner -->
+          <div id="riskBanner" class="rounded-lg p-4 mb-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div id="riskIcon" class="text-2xl"></div>
+              <div>
+                <div id="riskLabel" class="text-lg font-semibold"></div>
+                <div id="confidence" class="muted text-sm"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Two-column details -->
+          <div class="md:flex md:gap-6">
+            <div class="md:flex-1">
+              <h4 class="text-sm font-medium">Explanation</h4>
+              <div id="explanation" class="mt-2 p-4 bg-gray-50 rounded-md muted"></div>
+
+              <h4 class="mt-4 text-sm font-medium">Highlighted Job Description</h4>
+              <div id="highlighted" class="mt-2 p-4 bg-white border rounded-md text-gray-800"></div>
+            </div>
+
+            <aside class="md:w-80 mt-4 md:mt-0">
+              <h4 class="text-sm font-medium">Company Signals</h4>
+              <div id="signals" class="mt-2 grid gap-2"></div>
+
+              <h4 class="mt-4 text-sm font-medium">Red Flags</h4>
+              <div id="redFlags" class="mt-2 flex gap-2 flex-wrap"></div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  function escapeHtml(s){ return (s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+
+  document.getElementById('backBtn').addEventListener('click', function(){
+    sessionStorage.removeItem('fakeJobLastAnalysis');
+    window.location.href = '/';
+  });
+
+  // read stored analysis
+  const stored = sessionStorage.getItem('fakeJobLastAnalysis');
+  if(!stored){
+    // show no data
+    document.getElementById('noData').classList.remove('hidden');
+  } else {
+    try {
+      const obj = JSON.parse(stored);
+      const payload = obj.payload || {};
+      const data = obj.data || {};
+
+      document.getElementById('noData').classList.add('hidden');
+      document.getElementById('results').classList.remove('hidden');
+
+      // determine risk label
+      const riskScore = typeof data.risk_score === 'number' ? Math.round(data.risk_score * 100) : undefined;
+      const pred = (data.prediction || '').toString().toLowerCase();
+      let riskLabel = 'Unknown';
+      if (typeof riskScore === 'number') {
+        if (riskScore >= 70) riskLabel = 'Scam';
+        else if (riskScore >= 40) riskLabel = 'Suspicious';
+        else riskLabel = 'Legit';
+      } else if (pred) {
+        riskLabel = pred === 'scam' ? 'Scam' : 'Legit';
+      }
+
+      const banner = document.getElementById('riskBanner');
+      const labelNode = document.getElementById('riskLabel');
+      const riskIcon = document.getElementById('riskIcon');
+      labelNode.textContent = riskLabel;
+      if(riskLabel === 'Legit'){
+        banner.style.background = '#ecfdf5'; labelNode.style.color = '#065f46'; riskIcon.textContent = '✅';
+      } else if(riskLabel === 'Suspicious'){
+        banner.style.background = '#fff7ed'; labelNode.style.color = '#92400e'; riskIcon.textContent = '⚠️';
+      } else {
+        banner.style.background = '#fff1f2'; labelNode.style.color = '#981b1b'; riskIcon.textContent = '❌';
+      }
+      document.getElementById('confidence').textContent = typeof riskScore === 'number' ? `Risk Score: ${riskScore}%` : '';
+
+      // explanation
+      const explanation = data.explanation || data.reason || data.message || 'No explanation provided';
+      document.getElementById('explanation').textContent = explanation;
+
+      // signals
+      const signals = data.signals || data.company_signals || {};
+      const signalsNode = document.getElementById('signals');
+      const signature = {
+        'Title': payload.title || '-',
+        'Company': payload.company || '-',
+        'Followers': signals.followers ?? payload.followers ?? '-',
+        'Employees': signals.employees ?? payload.employees ?? '-',
+        'Engagement': signals.engagement ?? payload.engagement ?? '-'
+      };
+      for(const k in signature){
+        const d = document.createElement('div');
+        d.className = 'p-2 bg-white border rounded';
+        d.innerHTML = `<div class="text-xs text-slate-600">${escapeHtml(k)}</div><div class="font-medium">${escapeHtml(String(signature[k]))}</div>`;
+        signalsNode.appendChild(d);
+      }
+
+      // red flags / keywords
+      const rf = data.red_flags || data.keywords || data.flags || [];
+      const rfArr = Array.isArray(rf) ? rf : (typeof rf === 'string' ? rf.split(',') : []);
+      const rfNode = document.getElementById('redFlags');
+      rfArr.forEach(x => {
+        const tag = document.createElement('div'); tag.className = 'flag';
+        tag.textContent = (x || '').trim();
+        rfNode.appendChild(tag);
+      });
+
+      // highlighted description
+      const raw = payload.description || '';
+      let highlighted = escapeHtml(raw);
+      rfArr.forEach(k => {
+        const key = (k || '').trim();
+        if(!key) return;
+        const re = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\b', 'gi');
+        highlighted = highlighted.replace(re, `<span style="background:#fff1f2;color:#b91c1c;font-weight:700;padding:2px 4px;border-radius:6px">${escapeHtml(key)}</span>`);
+      });
+      document.getElementById('highlighted').innerHTML = highlighted || '<em class="muted">No description provided</em>';
+    } catch(e){
+      console.error(e);
+      document.getElementById('noData').classList.remove('hidden');
+    }
+  }
+</script>
+
+</body>
+</html>
+

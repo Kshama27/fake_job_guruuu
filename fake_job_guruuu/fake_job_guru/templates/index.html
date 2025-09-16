@@ -1,419 +1,155 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fake Job Guru - Scam Detection</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fake Job Guru — Analyze</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .card { background: white; border-radius: 14px; box-shadow: 0 10px 30px rgba(2,6,23,0.06); }
+    .muted { color: #6b7280; }
+    .input-focus:focus { outline: none; box-shadow: 0 0 0 4px rgba(59,130,246,0.08); border-color: #3b82f6; }
+    .accent-btn { background-color: #2563eb; color: white; }
+    .accent-btn:hover { background-color: #1e40af; }
+    .secondary-btn { border: 1px solid #e6e9ef; background: white; color: #374151; }
+    .small-muted { font-size: 0.9rem; color: #6b7280; }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen" style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
-    <div class="mx-auto px-3 py-6 max-w-3xl">
-        <!-- Header / App Bar -->
-        <div class="sticky top-0 z-10 mb-4">
-            <div class="backdrop-blur bg-white/70 border border-gray-200 rounded-2xl shadow-sm px-4 py-3 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">FG</div>
-                    <div>
-                        <h1 class="text-base md:text-lg font-semibold text-gray-900 leading-tight">Fake Job Guru</h1>
-                        <p class="text-xs md:text-sm text-gray-500 -mt-0.5">Fast scam analysis for job ads</p>
-                    </div>
-                </div>
-                <a href="/health" class="text-xs md:text-sm text-blue-600 hover:text-blue-700">Health</a>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50 flex items-center justify-center p-6">
+
+  <div class="w-full max-w-5xl">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-600 to-sky-500 flex items-center justify-center text-white font-bold">FG</div>
+          <div>
+            <h1 class="text-2xl font-semibold text-slate-800">Fake Job Guru</h1>
+            <div class="small-muted">Fast scam analysis for job postings</div>
+          </div>
+        </div>
+        <div class="text-sm muted">Detect scams · Make hiring safer</div>
+      </div>
+    </header>
+
+    <!-- Main card: full-screen analyze area -->
+    <main class="card p-6">
+      <div class="md:flex md:space-x-6">
+        <!-- Left: Inputs (dominant) -->
+        <section class="md:flex-1">
+          <label class="text-sm font-medium text-slate-700">Paste Job Description</label>
+          <textarea id="description" rows="10" class="w-full mt-2 p-3 border border-gray-200 rounded-lg input-focus" placeholder="Paste the full job posting here..."></textarea>
+
+          <!-- Optional advanced fields (collapsed) -->
+          <div class="mt-4">
+            <button id="toggleAdvanced" class="text-sm small-muted flex items-center gap-2">
+              <svg id="chev" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              Advanced options
+            </button>
+            <div id="advanced" class="hidden mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <input id="title" class="p-2 border rounded-lg input-focus" placeholder="Job title (optional)"/>
+              <input id="company" class="p-2 border rounded-lg input-focus" placeholder="Company name (optional)"/>
+              <input id="followers" type="number" class="p-2 border rounded-lg input-focus" placeholder="Followers (optional)"/>
+              <input id="employees" class="p-2 border rounded-lg input-focus" placeholder="Employees (optional)"/>
+              <input id="engagement" type="number" min="0" max="10" class="p-2 border rounded-lg input-focus" placeholder="Engagement 0–10 (optional)"/>
             </div>
-        </div>
+          </div>
 
-        <!-- Alert Container -->
-        <div id="alert-container" class="mb-6"></div>
+          <!-- Buttons -->
+          <div class="mt-5 flex items-center gap-3">
+            <button id="analyzeBtn" class="px-6 py-3 rounded-lg accent-btn shadow-sm flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              <span>Analyze Job</span>
+            </button>
+            <button id="clearBtn" class="px-4 py-3 rounded-lg secondary-btn">Clear</button>
+            <div id="status" class="ml-3 small-muted"></div>
+          </div>
 
-        <!-- Main Card (popup/dashboard feel) -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-6">
-            <form id="job-form" class="space-y-4">
-                <!-- Compact input area -->
-                <div class="flex items-start gap-3">
-                    <div class="flex-1">
-                        <label for="description" class="sr-only">Job Description</label>
-                        <textarea id="description" name="description" rows="5" placeholder="Paste job ad here..."
-                                  class="w-full resize-y rounded-xl border border-gray-300/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm bg-gray-50/60"></textarea>
-                    </div>
-                    <div class="flex flex-col gap-2 w-[140px] shrink-0">
-                        <button type="submit" id="analyze-btn"
-                                class="bg-blue-600 text-white rounded-xl py-3 px-4 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50">
-                            <span id="btn-text">Analyze</span>
-                            <span id="btn-loading" class="hidden align-middle">
-                                <svg class="animate-spin h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </span>
-                        </button>
-                        <button type="button" id="clear-btn"
-                                class="rounded-xl py-3 px-4 text-sm font-medium border border-gray-300/80 text-gray-700 hover:bg-gray-50">
-                            Clear
-                        </button>
-                    </div>
-                </div>
+          <p class="mt-4 small-muted">Tip: Use the Advanced options if you want company signals to be considered.</p>
+        </section>
 
-                <!-- Optional meta inputs (collapsible) -->
-                <details class="group">
-                    <summary class="list-none cursor-pointer select-none text-sm text-gray-600 flex items-center gap-2">
-                        <span class="inline-block w-5 h-5 rounded-md bg-gray-100 text-gray-500 text-center leading-5">i</span>
-                        Optional details (title, company, counts)
-                        <svg class="w-4 h-4 ml-auto text-gray-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </summary>
-                    <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <input type="text" id="title" name="title" placeholder="Job Title"
-                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
-                        <input type="number" id="followers" name="followers" placeholder="Followers"
-                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
-                        <input type="number" id="employees" name="employees" placeholder="Employees"
-                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
-                        <input type="number" id="engagement" name="engagement" placeholder="Engagement"
-                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
-                        <textarea id="requirements" name="requirements" rows="2" placeholder="Requirements (optional)"
-                                  class="w-full md:col-span-2 px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm"></textarea>
-                        <textarea id="company_profile" name="company_profile" rows="2" placeholder="Company profile (optional)"
-                                  class="w-full md:col-span-3 px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm"></textarea>
-                    </div>
-                </details>
-            </form>
-        </div>
+        <!-- Right: Visual helper / preview -->
+        <aside class="md:w-96 mt-6 md:mt-0">
+          <div class="p-4 border border-gray-100 rounded-lg">
+            <h3 class="text-sm font-medium text-slate-700">How it works</h3>
+            <p class="small-muted mt-2">We analyze text and company signals, then provide a risk result, explanation, and highlighted red flags. Results open on a separate page for cleaner presentation.</p>
 
-        <!-- Results Container -->
-        <div id="results-container" class="hidden"></div>
-    </div>
+            <div class="mt-4">
+              <h4 class="text-sm font-medium">Quick examples</h4>
+              <ul class="list-disc list-inside small-muted mt-2">
+                <li>“Pay a registration fee” → Red flag</li>
+                <li>Missing company activity → Suspicious</li>
+              </ul>
+            </div>
 
-    <script>
-        // Form elements
-        const form = document.getElementById('job-form');
-        const analyzeBtn = document.getElementById('analyze-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnLoading = document.getElementById('btn-loading');
-        const clearBtn = document.getElementById('clear-btn');
-        const alertContainer = document.getElementById('alert-container');
-        const resultsContainer = document.getElementById('results-container');
+            <div class="mt-4 text-xs small-muted">© Fake Job Guru</div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
 
-        // Helpers
-        function escapeHtml(unsafe) {
-            return unsafe
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
-        }
-        function escapeRegExp(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
+<script>
+  // small helpers
+  function el(id){return document.getElementById(id);}  
+  
+  // toggle advanced options
+  el('toggleAdvanced').addEventListener('click', function(){
+    const adv = el('advanced');
+    const chev = el('chev');
+    adv.classList.toggle('hidden');
+    chev.classList.toggle('rotate-180');
+  });
 
-        // Load saved form data
-        function loadFormData() {
-            const saved = localStorage.getItem('fakeJobGuruForm');
-            if (saved) {
-                const data = JSON.parse(saved);
-                Object.keys(data).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element) {
-                        element.value = data[key] || '';
-                    }
-                });
-            }
-        }
+  // clear button
+  el('clearBtn').addEventListener('click', function(){
+    ['description','title','company','followers','employees','engagement'].forEach(id => el(id) && (el(id).value=''));
+    el('status').textContent = '';
+  });
 
-        // Save form data
-        function saveFormData() {
-            const formData = new FormData(form);
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-            localStorage.setItem('fakeJobGuruForm', JSON.stringify(data));
-        }
+  // analyze button
+  el('analyzeBtn').addEventListener('click', async function(){
+    const payload = {
+      title: el('title')?.value || '',
+      description: el('description')?.value || '',
+      followers: el('followers')?.value ? Number(el('followers').value) : undefined,
+      employees: el('employees')?.value ? Number(el('employees').value) : undefined,
+      engagement: el('engagement')?.value ? Number(el('engagement').value) : undefined
+    };
 
-        // Show alert
-        function showAlert(message, type = 'error') {
-            const alertClass = type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-green-50 border-green-200 text-green-800';
-            const alertHTML = `
-                <div class="rounded-md p-4 border ${alertClass} fade-in">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 ${type === 'error' ? 'text-red-400' : 'text-green-400'}" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <p class="text-sm font-medium">${message}</p>
-                        </div>
-                        <div class="ml-auto pl-3">
-                            <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
-                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            alertContainer.innerHTML = alertHTML;
-        }
+    if(!payload.description || payload.description.trim().length < 20){
+      el('status').textContent = 'Please paste a longer job description to analyze.';
+      return;
+    }
 
-        // Clear alerts
-        function clearAlerts() {
-            alertContainer.innerHTML = '';
-        }
+    // show spinner/status
+    el('status').innerHTML = 'Analyzing... <svg class="inline-block animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>';
 
-        // Validate numeric fields
-        function validateForm() {
-            const numericFields = ['followers', 'employees', 'engagement'];
-            for (const field of numericFields) {
-                const element = document.getElementById(field);
-                const value = parseInt(element.value);
-                if (element.value && (isNaN(value) || value < 0)) {
-                    showAlert(`${field.charAt(0).toUpperCase() + field.slice(1)} must be a number greater than or equal to 0`);
-                    element.focus();
-                    return false;
-                }
-            }
-            return true;
-        }
+    try {
+      const res = await fetch('/analyze_job', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error('Server responded '+res.status);
+      const data = await res.json();
+      // store and redirect to results page
+      sessionStorage.setItem('fakeJobLastAnalysis', JSON.stringify({payload, data}));
+      window.location.href = '/results.html';
+    } catch (err) {
+      el('status').textContent = 'Error: ' + (err.message || 'Network error');
+      console.error(err);
+    }
+  });
+</script>
 
-        // Show loading state
-        function setLoading(loading) {
-            analyzeBtn.disabled = loading;
-            if (loading) {
-                btnText.classList.add('hidden');
-                btnLoading.classList.remove('hidden');
-            } else {
-                btnText.classList.remove('hidden');
-                btnLoading.classList.add('hidden');
-            }
-        }
-
-        // Render results
-        function renderResults(data) {
-            const isScam = data.prediction === 'scam';
-            const scamProb = (data.probabilities.scam * 100).toFixed(1);
-            const legitProb = (data.probabilities.legit * 100).toFixed(1);
-            const riskScore = (data.risk_score * 100).toFixed(1);
-
-            // traffic light banding
-            const rs = Number(riskScore);
-            let band = 'green';
-            if (rs >= 70) band = 'red';
-            else if (rs >= 40) band = 'yellow';
-            const bandStyles = {
-                green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', sub: 'text-green-600', chip: 'bg-green-100 text-green-800' },
-                yellow: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-900', sub: 'text-yellow-700', chip: 'bg-yellow-100 text-yellow-800' },
-                red: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', sub: 'text-red-600', chip: 'bg-red-100 text-red-800' },
-            }[band];
-
-            const signals = data.signals;
-            const keywords = signals.keywords_triggered || [];
-            const flags = [];
-
-            // Get current description value
-            const rawDescription = document.getElementById('description').value || '';
-
-            // Build highlighted description
-            let highlightedDesc = escapeHtml(rawDescription);
-            keywords.forEach(k => {
-                const re = new RegExp('\\b' + escapeRegExp(k) + '\\b', 'gi');
-                highlightedDesc = highlightedDesc.replace(re, `<span class="bg-red-100 text-red-800 font-semibold px-1 rounded">${k}</span>`);
-            });
-
-            if (signals.missing_website_flag) flags.push({ name: 'Missing Website', desc: 'No website mentioned in company profile' });
-            if (signals.suspicious_email_flag) flags.push({ name: 'Suspicious Contact', desc: 'Uses Gmail, Yahoo, or messaging apps for contact' });
-            if (signals.short_profile_flag) flags.push({ name: 'Short Profile', desc: 'Company profile is very brief or empty' });
-            if (signals.weak_company) flags.push({ name: 'Weak Company', desc: 'Low followers, employees, or engagement' });
-
-            const resultsHTML = `
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 fade-in">
-                    <!-- Main Prediction Card -->
-                    <div class="${bandStyles.bg} border ${bandStyles.border} rounded-xl p-4 sm:p-5 mb-5">
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Risk Assessment</div>
-                                <h3 class="text-lg font-semibold ${bandStyles.text} mb-1">
-                                    ${band === 'green' ? 'LEGITIMATE' : band === 'yellow' ? 'SUSPICIOUS' : 'SCAM'}
-                                </h3>
-                                <div class="text-sm ${bandStyles.sub} flex gap-4">
-                                    <div>Risk Score: <span class="font-semibold">${riskScore}%</span></div>
-                                    <div>Scam Prob: <span class="font-semibold">${scamProb}%</span></div>
-                                    <div>Legit Prob: <span class="font-semibold">${legitProb}%</span></div>
-                                </div>
-                            </div>
-                            <div class="text-3xl">${band === 'red' ? '🚨' : band === 'yellow' ? '⚠️' : '✅'}</div>
-                        </div>
-                    </div>
-
-                    <!-- Signals Section -->
-                    <div class="space-y-4">
-                        <!-- Highlighted Description -->
-                        ${rawDescription ? `
-                        <div>
-                            <h4 class="font-medium text-gray-900 mb-2">Job description (highlighted):</h4>
-                            <div class="text-sm leading-6 bg-gray-50 border border-gray-200 rounded p-3">${highlightedDesc}</div>
-                        </div>
-                        ` : ''}
-
-                        <button onclick="toggleSignals()" class="flex items-center justify-between w-full text-left font-medium text-gray-900 hover:text-blue-600 focus:outline-none">
-                            <span>Signals & Analysis</span>
-                            <svg id="signals-arrow" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        
-                        <div id="signals-content" class="hidden space-y-4">
-                            <!-- Keywords -->
-                            ${keywords.length > 0 ? `
-                                <div>
-                                    <h4 class="font-medium text-gray-900 mb-2">Triggered Keywords:</h4>
-                                    <div class="flex flex-wrap gap-2">
-                                        ${keywords.map(keyword => `<span class="px-2.5 py-1 ${band === 'red' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'} text-xs rounded-full">${keyword}</span>`).join('')}
-                                    </div>
-                                </div>
-                            ` : ''}
-
-                            <!-- Company Info -->
-                            <div>
-                                <h4 class="font-medium text-gray-900 mb-2">Company Information:</h4>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                                    <div class="rounded-lg border border-gray-200 p-3">
-                                        <div class="text-gray-500 text-xs">Strength</div>
-                                        <div class="mt-0.5 font-semibold ${signals.company_strength === 'weak' ? 'text-red-600' : signals.company_strength === 'medium' ? 'text-yellow-600' : 'text-green-600'}">${signals.company_strength || 'n/a'}</div>
-                                    </div>
-                                    <div class="rounded-lg border border-gray-200 p-3">
-                                        <div class="text-gray-500 text-xs">Followers</div>
-                                        <div class="mt-0.5 font-semibold">${signals.followers}</div>
-                                    </div>
-                                    <div class="rounded-lg border border-gray-200 p-3">
-                                        <div class="text-gray-500 text-xs">Employees</div>
-                                        <div class="mt-0.5 font-semibold">${signals.employees}</div>
-                                    </div>
-                                    <div class="rounded-lg border border-gray-200 p-3">
-                                        <div class="text-gray-500 text-xs">Engagement</div>
-                                        <div class="mt-0.5 font-semibold">${signals.engagement}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Flags -->
-                            ${flags.length > 0 ? `
-                                <div>
-                                    <h4 class="font-medium text-gray-900 mb-2">Warning Flags:</h4>
-                                    <div class="space-y-2">
-                                        ${flags.map(flag => `
-                                            <div class="flex items-start">
-                                                <span class="text-red-500 mr-2">⚠️</span>
-                                                <div>
-                                                    <span class="font-medium text-red-800">${flag.name}</span>
-                                                    <p class="text-sm text-gray-600">${flag.desc}</p>
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            resultsContainer.innerHTML = resultsHTML;
-            resultsContainer.classList.remove('hidden');
-        }
-
-        // Toggle signals visibility
-        function toggleSignals() {
-            const content = document.getElementById('signals-content');
-            const arrow = document.getElementById('signals-arrow');
-            content.classList.toggle('hidden');
-            arrow.classList.toggle('rotate-180');
-        }
-
-        // Submit form
-        async function submitForm(event) {
-            event.preventDefault();
-            clearAlerts();
-
-            if (!validateForm()) {
-                return;
-            }
-
-            setLoading(true);
-
-            try {
-                const formData = new FormData(form);
-                const payload = {};
-                
-                // Build payload with proper field names
-                for (let [key, value] of formData.entries()) {
-                    if (value.trim()) {
-                        if (['followers', 'employees', 'engagement'].includes(key)) {
-                            payload[key] = parseInt(value);
-                        } else {
-                            payload[key] = value.trim();
-                        }
-                    }
-                }
-
-                const response = await fetch('/analyze_job', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || `HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-                renderResults(data);
-                saveFormData();
-
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert(`Error analyzing job: ${error.message}`);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        // Clear form
-        function clearForm() {
-            form.reset();
-            resultsContainer.classList.add('hidden');
-            clearAlerts();
-            localStorage.removeItem('fakeJobGuruForm');
-        }
-
-        // Event listeners
-        form.addEventListener('submit', submitForm);
-        clearBtn.addEventListener('click', clearForm);
-
-        // Auto-save on input
-        form.addEventListener('input', saveFormData);
-
-        // Load saved data on page load
-        document.addEventListener('DOMContentLoaded', loadFormData);
-
-        // Handle Enter key in form
-        form.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                submitForm(event);
-            }
-        });
-    </script>
 </body>
 </html>
 
