@@ -4,98 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fake Job Guru - Scam Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Fake Job Guru</h1>
-            <p class="text-lg text-gray-600">Analyze job postings for potential scams</p>
+<body class="bg-gray-50 min-h-screen" style="font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+    <div class="mx-auto px-3 py-6 max-w-3xl">
+        <!-- Header / App Bar -->
+        <div class="sticky top-0 z-10 mb-4">
+            <div class="backdrop-blur bg-white/70 border border-gray-200 rounded-2xl shadow-sm px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold">FG</div>
+                    <div>
+                        <h1 class="text-base md:text-lg font-semibold text-gray-900 leading-tight">Fake Job Guru</h1>
+                        <p class="text-xs md:text-sm text-gray-500 -mt-0.5">Fast scam analysis for job ads</p>
+                    </div>
+                </div>
+                <a href="/health" class="text-xs md:text-sm text-blue-600 hover:text-blue-700">Health</a>
+            </div>
         </div>
 
         <!-- Alert Container -->
         <div id="alert-container" class="mb-6"></div>
 
-        <!-- Main Form -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <form id="job-form" class="space-y-6">
-                <!-- Title -->
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                    <input type="text" id="title" name="title" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           placeholder="e.g., Data Entry Clerk">
-                </div>
-
-                <!-- Description -->
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
-                    <textarea id="description" name="description" rows="4"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Enter the job description..."></textarea>
-                </div>
-
-                <!-- Requirements -->
-                <div>
-                    <label for="requirements" class="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
-                    <textarea id="requirements" name="requirements" rows="3"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Enter job requirements..."></textarea>
-                </div>
-
-                <!-- Company Profile -->
-                <div>
-                    <label for="company_profile" class="block text-sm font-medium text-gray-700 mb-2">Company Profile</label>
-                    <textarea id="company_profile" name="company_profile" rows="3"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Enter company information..."></textarea>
-                </div>
-
-                <!-- Numeric Fields Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="followers" class="block text-sm font-medium text-gray-700 mb-2">Company Followers</label>
-                        <input type="number" id="followers" name="followers" min="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="0">
+        <!-- Main Card (popup/dashboard feel) -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-6">
+            <form id="job-form" class="space-y-4">
+                <!-- Compact input area -->
+                <div class="flex items-start gap-3">
+                    <div class="flex-1">
+                        <label for="description" class="sr-only">Job Description</label>
+                        <textarea id="description" name="description" rows="5" placeholder="Paste job ad here..."
+                                  class="w-full resize-y rounded-xl border border-gray-300/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 px-4 py-3 text-sm bg-gray-50/60"></textarea>
                     </div>
-                    <div>
-                        <label for="employees" class="block text-sm font-medium text-gray-700 mb-2">Employees</label>
-                        <input type="number" id="employees" name="employees" min="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="0">
-                    </div>
-                    <div>
-                        <label for="engagement" class="block text-sm font-medium text-gray-700 mb-2">Engagement Score</label>
-                        <input type="number" id="engagement" name="engagement" min="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                               placeholder="0">
+                    <div class="flex flex-col gap-2 w-[140px] shrink-0">
+                        <button type="submit" id="analyze-btn"
+                                class="bg-blue-600 text-white rounded-xl py-3 px-4 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50">
+                            <span id="btn-text">Analyze</span>
+                            <span id="btn-loading" class="hidden align-middle">
+                                <svg class="animate-spin h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <button type="button" id="clear-btn"
+                                class="rounded-xl py-3 px-4 text-sm font-medium border border-gray-300/80 text-gray-700 hover:bg-gray-50">
+                            Clear
+                        </button>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                    <button type="submit" id="analyze-btn"
-                            class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span id="btn-text">Analyze Job Posting</span>
-                        <span id="btn-loading" class="hidden">
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Analyzing...
-                        </span>
-                    </button>
-                    <button type="button" id="clear-btn"
-                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        Clear Form
-                    </button>
-                </div>
+                <!-- Optional meta inputs (collapsible) -->
+                <details class="group">
+                    <summary class="list-none cursor-pointer select-none text-sm text-gray-600 flex items-center gap-2">
+                        <span class="inline-block w-5 h-5 rounded-md bg-gray-100 text-gray-500 text-center leading-5">i</span>
+                        Optional details (title, company, counts)
+                        <svg class="w-4 h-4 ml-auto text-gray-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" id="title" name="title" placeholder="Job Title"
+                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
+                        <input type="number" id="followers" name="followers" placeholder="Followers"
+                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
+                        <input type="number" id="employees" name="employees" placeholder="Employees"
+                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
+                        <input type="number" id="engagement" name="engagement" placeholder="Engagement"
+                               class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm" />
+                        <textarea id="requirements" name="requirements" rows="2" placeholder="Requirements (optional)"
+                                  class="w-full md:col-span-2 px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm"></textarea>
+                        <textarea id="company_profile" name="company_profile" rows="2" placeholder="Company profile (optional)"
+                                  class="w-full md:col-span-3 px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm"></textarea>
+                    </div>
+                </details>
             </form>
         </div>
 
@@ -216,6 +202,17 @@
             const legitProb = (data.probabilities.legit * 100).toFixed(1);
             const riskScore = (data.risk_score * 100).toFixed(1);
 
+            // traffic light banding
+            const rs = Number(riskScore);
+            let band = 'green';
+            if (rs >= 70) band = 'red';
+            else if (rs >= 40) band = 'yellow';
+            const bandStyles = {
+                green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', sub: 'text-green-600', chip: 'bg-green-100 text-green-800' },
+                yellow: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-900', sub: 'text-yellow-700', chip: 'bg-yellow-100 text-yellow-800' },
+                red: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', sub: 'text-red-600', chip: 'bg-red-100 text-red-800' },
+            }[band];
+
             const signals = data.signals;
             const keywords = signals.keywords_triggered || [];
             const flags = [];
@@ -236,25 +233,22 @@
             if (signals.weak_company) flags.push({ name: 'Weak Company', desc: 'Low followers, employees, or engagement' });
 
             const resultsHTML = `
-                <div class="bg-white rounded-lg shadow-lg p-6 fade-in">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Analysis Results</h2>
-                    
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 fade-in">
                     <!-- Main Prediction Card -->
-                    <div class="bg-${isScam ? 'red' : 'green'}-50 border border-${isScam ? 'red' : 'green'}-200 rounded-lg p-6 mb-6">
-                        <div class="flex items-center justify-between">
+                    <div class="${bandStyles.bg} border ${bandStyles.border} rounded-xl p-4 sm:p-5 mb-5">
+                        <div class="flex items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-semibold text-${isScam ? 'red' : 'green'}-800 mb-2">
-                                    Prediction: ${isScam ? 'SCAM' : 'LEGITIMATE'}
+                                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Risk Assessment</div>
+                                <h3 class="text-lg font-semibold ${bandStyles.text} mb-1">
+                                    ${band === 'green' ? 'LEGITIMATE' : band === 'yellow' ? 'SUSPICIOUS' : 'SCAM'}
                                 </h3>
-                                <div class="text-sm text-${isScam ? 'red' : 'green'}-600">
-                                    <div>Scam Probability: ${scamProb}%</div>
-                                    <div>Legitimate Probability: ${legitProb}%</div>
-                                    <div>Risk Score: ${riskScore}%</div>
+                                <div class="text-sm ${bandStyles.sub} flex gap-4">
+                                    <div>Risk Score: <span class="font-semibold">${riskScore}%</span></div>
+                                    <div>Scam Prob: <span class="font-semibold">${scamProb}%</span></div>
+                                    <div>Legit Prob: <span class="font-semibold">${legitProb}%</span></div>
                                 </div>
                             </div>
-                            <div class="text-4xl">
-                                ${isScam ? '🚨' : '✅'}
-                            </div>
+                            <div class="text-3xl">${band === 'red' ? '🚨' : band === 'yellow' ? '⚠️' : '✅'}</div>
                         </div>
                     </div>
 
@@ -281,7 +275,7 @@
                                 <div>
                                     <h4 class="font-medium text-gray-900 mb-2">Triggered Keywords:</h4>
                                     <div class="flex flex-wrap gap-2">
-                                        ${keywords.map(keyword => `<span class="px-3 py-1 bg-red-100 text-red-800 text-sm rounded-full">${keyword}</span>`).join('')}
+                                        ${keywords.map(keyword => `<span class="px-2.5 py-1 ${band === 'red' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'} text-xs rounded-full">${keyword}</span>`).join('')}
                                     </div>
                                 </div>
                             ` : ''}
@@ -289,22 +283,22 @@
                             <!-- Company Info -->
                             <div>
                                 <h4 class="font-medium text-gray-900 mb-2">Company Information:</h4>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                        <span class="text-gray-600">Strength:</span>
-                                        <span class="ml-1 font-medium ${signals.company_strength === 'weak' ? 'text-red-600' : signals.company_strength === 'medium' ? 'text-yellow-600' : 'text-green-600'}">${signals.company_strength}</span>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                    <div class="rounded-lg border border-gray-200 p-3">
+                                        <div class="text-gray-500 text-xs">Strength</div>
+                                        <div class="mt-0.5 font-semibold ${signals.company_strength === 'weak' ? 'text-red-600' : signals.company_strength === 'medium' ? 'text-yellow-600' : 'text-green-600'}">${signals.company_strength || 'n/a'}</div>
                                     </div>
-                                    <div>
-                                        <span class="text-gray-600">Followers:</span>
-                                        <span class="ml-1 font-medium">${signals.followers}</span>
+                                    <div class="rounded-lg border border-gray-200 p-3">
+                                        <div class="text-gray-500 text-xs">Followers</div>
+                                        <div class="mt-0.5 font-semibold">${signals.followers}</div>
                                     </div>
-                                    <div>
-                                        <span class="text-gray-600">Employees:</span>
-                                        <span class="ml-1 font-medium">${signals.employees}</span>
+                                    <div class="rounded-lg border border-gray-200 p-3">
+                                        <div class="text-gray-500 text-xs">Employees</div>
+                                        <div class="mt-0.5 font-semibold">${signals.employees}</div>
                                     </div>
-                                    <div>
-                                        <span class="text-gray-600">Engagement:</span>
-                                        <span class="ml-1 font-medium">${signals.engagement}</span>
+                                    <div class="rounded-lg border border-gray-200 p-3">
+                                        <div class="text-gray-500 text-xs">Engagement</div>
+                                        <div class="mt-0.5 font-semibold">${signals.engagement}</div>
                                     </div>
                                 </div>
                             </div>
@@ -422,3 +416,4 @@
     </script>
 </body>
 </html>
+
