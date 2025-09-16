@@ -97,14 +97,14 @@
     el('status').innerHTML = 'Analyzing... <svg class="inline-block animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>';
 
     try {
-      const res = await fetch('/analyze_job', {
+      const res = await fetch('/analyze', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify(payload)
       });
       if(!res.ok) throw new Error('Server responded '+res.status);
       const data = await res.json();
-      // store and redirect to results page
+      // store and show results page content inline
       sessionStorage.setItem('fakeJobLastAnalysis', JSON.stringify({payload, data}));
       window.location.href = '/results.html';
     } catch (err) {
